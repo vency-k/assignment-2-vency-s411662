@@ -1,0 +1,133 @@
+.ORIG x3000
+
+getp                    ; get plaer pos
+
+;calculate distance from point A
+LD R3, A_X          ; POS OF A_X IN R3
+ld R4, A_Y          ; POS OF A_Y IN R4
+LD R5, A_Z          ; POS OF A_Z IN R5
+
+NOT R3, R3
+ADD R3, R3, #1      ; -A_X
+ADD R3, R3, R0      ; -A_X + POS.X
+BRzp CAL_Y_A
+NOT R3, R3
+ADD R3, R3, #1      ; ABSOLUTE OF POS.X-A_X
+
+CAL_Y_A
+NOT R4, R4
+ADD R4, R4, #1      ; -A_Y
+ADD R4, R4, R1      ; -A_Y + POS.Y
+BRzp CAL_Z_A
+NOT R4, R4
+ADD R4, R4, #1      ; ABSOLUTE OF POS.Y-A_Y
+
+CAL_Z_A
+NOT R5, R5
+ADD R5, R5, #1      ; -A_Z
+ADD R5, R5, R2      ; -A_Z + POS.Z
+BRzp NEXT
+NOT R5, R5
+ADD R5, R5, #1      ; ABOSULE OF POS.Z-A_Z
+
+NEXT
+; TOTAL DISTANCE FROM POINT A
+ADD R6, R6, R3
+ADD R6, R6, R4
+ADD R6, R6, R5
+
+ST R6, DIST_A       ; STORE IN DIST_A
+
+; CLEAR REGISTERS R3, R4, R5, R6 FOR FURTHER USE
+AND R3, R3, #0
+AND R4, R4, #0
+AND R5, R5, #0
+AND R6, R6, #0
+
+; DO SAME FOR DISTANCE FROM POINT B
+LD R3, B_X      ; POS OF B_X IN R3
+LD R4, B_Y      ; POS OF B_Y IN R4
+LD R5, B_Z      ; POS OF B_Z IN R5
+
+NOT R3, R3
+ADD R3, R3, #1      ; -B_X
+ADD R3, R3, R0      ; -B_X + POS.X
+BRzp CAL_Y_B
+NOT R3, R3
+ADD R3, R3, #1      ; ABSOLUTE OF POS.X-B_X
+
+CAL_Y_B
+NOT R4, R4
+ADD R4, R4, #1      ; -B_Y
+ADD R4, R4, R1      ; -B_Y + POS.Y
+BRzp CAL_Z_B
+NOT R4, R4
+ADD R4, R4, #1      ; ABSOLUTE OF POS.Y-B_Y
+
+CAL_Z_B
+NOT R5, R5
+ADD R5, R5, #1      ; -B_Z
+ADD R5, R5, R2      ; -B_Z + POS.Z
+BRzp FIN
+NOT R5, R5
+ADD R5, R5 #1       ; ABSOLUTE OF POS.Z-B_Z
+
+FIN
+; TOTAL DISTANCE FROM B
+ADD R6, R6, R3
+ADD R6, R6, R4
+ADD R6, R6, R5
+ST R6, DIST_B       ; STORE IN DIST_B
+
+; CLEAR REGISTERS FOR FURTHER USE
+AND R3, R3, #0
+AND R4, R4, #0
+AND R5, R5, #0
+AND R6, R6, #0
+
+LD R3, DIST_A       ; DISTANCE FROM A IN R3
+LD R4, DIST_B       ; DISTANCE FORM B IN R4
+
+NOT R4, R4
+ADD R4, R4, #1      ; -R4
+
+ADD R5, R3, R4      ; DIST_A - DIST_B
+BRn CLOSE_TO_A
+BRz EQUAL
+BRp CLOSE_TO_B
+
+; CLEAR R0 TO KEEP OUTPUT IN CHAT
+AND R0, R0 #0
+
+CLOSE_TO_A
+LEA R0, A_CLOSE
+CHAT
+BR FINAL
+
+CLOSE_TO_B
+LEA R0, B_CLOSE
+CHAT
+BR FINAL
+
+EQUAL 
+LEA R0, equal
+CHAT
+BR FINAL
+
+FINAL
+HALT
+A_X .FILL #1
+A_Y .FILL #2
+A_Z .FILL #3
+B_X .FILL #20
+B_Y .FILL #32
+B_Z .FILL #-8
+
+DIST_A .FILL #0
+DIST_B .FILL #0
+
+A_CLOSE .STRINGZ "The player is close to point A"
+B_CLOSE .STRINGZ "The player is close to point B"
+equal .STRINGZ	"The player is equally far from both points"
+
+.END

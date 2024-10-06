@@ -1,0 +1,56 @@
+.ORIG x3000
+
+GETP                          
+
+LD R4, NUMBER_TO_CONVERT
+
+AND R7, R7, #0
+ADD R7, R7 #15
+
+
+LOOP
+ADD R2, R2, #1
+add r4, r4, #0
+
+MOD
+BRnz DONE1
+ADD R4, R4, #-2
+ADD R5, R5, #1
+add r4, r4, #0
+BR MOD
+
+DONE1
+ADD R6, R6, R4
+BRz AIR_B
+BRn STONE_B
+
+AIR_B
+LD R3, AIR_BLOCK
+SETB
+BR DONE
+
+
+STONE_B
+add r5, r5, #-1
+LD R3, STONE_BLOCK
+SETB
+BR DONE
+
+
+DONE
+AND R4, R4, #0
+ADD R4, R4, R5
+AND R5, R5, #0
+AND R6, R6, #0
+
+ADD R7, R7, #-1
+
+BRzp LOOP
+
+HALT
+NUMBER_TO_CONVERT .FILL #237 ; Note: Please do not change the name of this constant
+
+AIR_BLOCK .FILL #0
+STONE_BLOCK .FILL #1
+
+.END
